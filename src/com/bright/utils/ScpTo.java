@@ -10,9 +10,13 @@
 
 package com.bright.utils;
 
+import com.bright.json.Constants;
 import com.jcraft.jsch.*;
+
 import java.awt.*;
+
 import javax.swing.*;
+
 import java.io.*;
 
 public class ScpTo {
@@ -31,8 +35,8 @@ public class ScpTo {
 
 			JSch jsch = new JSch();
 			Session session = jsch.getSession(user, host, 22);
-			jsch.setKnownHosts(System.getProperty("user.home")+ File.separator + "Bright" + File.separator + "known_hosts");
-			jsch.addIdentity(System.getProperty("user.home")+ File.separator + "Bright" + File.separator + "id_dsa");
+			jsch.setKnownHosts(System.getProperty("user.home")+ File.separator + Constants.BRIGHT_CACHE_DIR + File.separator + "known_hosts");
+			jsch.addIdentity(System.getProperty("user.home")+ File.separator + Constants.BRIGHT_CACHE_DIR + File.separator + "id_dsa");
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
 
@@ -161,7 +165,7 @@ public class ScpTo {
 					+ rfile
 					+ "/"
 					+ arg[3]
-					+ " && module load nexus && $NEXUS_SIM/LinuxEM64/standaloneEM64_5000_4_7.exe *.fcs -c `pwd`/"
+					+ " && module load nexus && " + Constants.STANDALONE_EXEC + " *.fcs -c `pwd`/"
 					+ arg[3] + " -s " + arg[2];
 			System.out.println("COMMAND1: " + command1);
 			Channel channel1 = session.openChannel("exec");

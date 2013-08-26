@@ -383,7 +383,7 @@ public class JSonRequestor {
 		myjobObj.setCommandLineInterpreter("/bin/bash");
 		myjobObj.setUserdefined(Arrays.asList("cd " + rfile, "date", "pwd"));
 		myjobObj.setExecutable("mpirun");
-		myjobObj.setArguments("-env I_MPI_FABRICS shm:tcp /cm/shared/apps/nexus/nexussimulators/LinuxEM64/nexusEM64_5000_4_7.exe -mpi -c "
+		myjobObj.setArguments("-env I_MPI_FABRICS shm:tcp " + Constants.NEXUSSIM_EXEC + " -mpi -c "
 				+ rfile
 				+ "/"
 				+ fileBasename

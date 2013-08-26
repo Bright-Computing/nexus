@@ -10,6 +10,7 @@
 
 package com.bright.utils;
 
+import com.bright.json.Constants;
 import com.jcraft.jsch.*;
 
 import java.awt.*;
@@ -37,8 +38,8 @@ public class ScpFrom {
 
 			JSch jsch = new JSch();
 			Session session = jsch.getSession(user, host, 22);
-			jsch.setKnownHosts(System.getProperty("user.home")+ File.separator + "Bright" + File.separator + "known_hosts");
-			jsch.addIdentity(System.getProperty("user.home")+ File.separator + "Bright" + File.separator + "id_dsa");
+			jsch.setKnownHosts(System.getProperty("user.home")+ File.separator + Constants.BRIGHT_CACHE_DIR + File.separator + "known_hosts");
+			jsch.addIdentity(System.getProperty("user.home")+ File.separator + Constants.BRIGHT_CACHE_DIR + File.separator + "id_dsa");
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
 			session.setUserInfo(ui);
