@@ -1,0 +1,52 @@
+package com.edw.json;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+
+public abstract class TLSSocketFactory extends SSLSocketFactory {
+
+private final javax.net.ssl.SSLSocketFactory socketfactory;
+
+public TLSSocketFactory(SSLContext sslContext) {
+    super();
+
+    this.socketfactory = sslContext.getSocketFactory();
+}
+
+public Socket createSocket() throws IOException {
+    SSLSocket socket = (SSLSocket) super.createSocket();
+
+    socket.setEnabledProtocols(new String[] {"SSLv3, TLSv1"});
+
+    return socket;
+}
+
+public Socket createSocket(
+        final Socket socket,
+        final String host,
+        final int port,
+        final boolean autoClose
+    ) throws IOException, UnknownHostException {
+
+    SSLSocket sslSocket = (SSLSocket) this.socketfactory.createSocket(
+            socket,
+            host,
+            port,
+            autoClose
+      );
+
+    sslSocket.setEnabledProtocols(new String[] {"SSLv3", "TLSv1"});
+
+    
+
+   // getHostnameVerifier().verify(host, sslSocket);
+
+    return sslSocket;
+}
+}

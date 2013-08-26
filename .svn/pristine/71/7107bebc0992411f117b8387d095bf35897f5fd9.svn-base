@@ -1,0 +1,36 @@
+package com.edw.bean;
+
+import java.util.List;
+
+public class cmReadFile {
+	
+	
+
+
+
+	
+		private String service;
+	    private String call;
+		private String path;
+		private String userName;
+		
+		public void setService(String service) {
+			this.service = service;
+		}
+		public void setCall(String call) {
+			this.call = call;
+		}
+		public void setPath(String path) {
+			this.path = path;
+		}
+		public void setUserName(String userName) {
+			this.userName = userName;
+		}
+	    
+	    
+
+
+	     
+	  
+
+}
