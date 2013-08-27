@@ -304,7 +304,8 @@ public class JSonRequestor {
 		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");
 		int build_ver = resInt.nextInt();
 		if (build_ver < Constants.CMDAEM0N_MIN_BUILD){
-			System.out.println("You neede CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
+			JOptionPane.showMessageDialog(null, "You need CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
+			System.out.println("You need CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
 			System.exit(0); 
 		}
 
