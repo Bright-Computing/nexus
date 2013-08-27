@@ -13,9 +13,9 @@ package com.bright.utils;
 import java.io.File;
 
 public class Delete {
-	
+
 	// Delete a local file
-	
+
 	public static void main(String args) {
 		String fileName = args;
 		// A File object to represent the filename

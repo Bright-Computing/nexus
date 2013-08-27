@@ -22,8 +22,6 @@ import java.io.*;
 public class ScpTo {
 	public static String[] main(String[] arg) {
 
-
-
 		FileInputStream fis = null;
 		try {
 
@@ -35,14 +33,17 @@ public class ScpTo {
 
 			JSch jsch = new JSch();
 			Session session = jsch.getSession(user, host, 22);
-			try{
-			jsch.setKnownHosts(System.getProperty("user.home")+ File.separator + Constants.BRIGHT_CACHE_DIR + File.separator + "known_hosts");
-			jsch.addIdentity(System.getProperty("user.home")+ File.separator + Constants.BRIGHT_CACHE_DIR + File.separator + "id_dsa");
-			}
-			catch (Exception e){
-				//JOptionPane.showMessageDialog(null,"No SSH keys found.");
+			try {
+				jsch.setKnownHosts(System.getProperty("user.home")
+						+ File.separator + Constants.BRIGHT_CACHE_DIR
+						+ File.separator + "known_hosts");
+				jsch.addIdentity(System.getProperty("user.home")
+						+ File.separator + Constants.BRIGHT_CACHE_DIR
+						+ File.separator + "id_dsa");
+			} catch (Exception e) {
+				// JOptionPane.showMessageDialog(null,"No SSH keys found.");
 				System.out.println("No SSH keys found.");
-			
+
 			}
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
@@ -158,22 +159,14 @@ public class ScpTo {
 			// session.disconnect();
 			System.out.println("Transfered succeded. Closing SCP channel.");
 			System.out.println("rfile " + rfile);
-			String command1 = "cd "
-					+ rfile
-					+ " && /usr/bin/unzip -o "
-					+ rfile
+			String command1 = "cd " + rfile + " && /usr/bin/unzip -o " + rfile
 					+ "/"
 					+ arg[0].substring(arg[0].lastIndexOf(File.separator) + 1)
-					+ " && rm -rf "
-					+ rfile
-					+ "/"
+					+ " && rm -rf " + rfile + "/"
 					+ arg[0].substring(arg[0].lastIndexOf(File.separator) + 1)
-					+ " && cd "
-					+ rfile
-					+ "/"
-					+ arg[3]
-					+ " && module load nexus && " + Constants.STANDALONE_EXEC + " *.fcs -c `pwd`/"
-					+ arg[3] + " -s " + arg[2];
+					+ " && cd " + rfile + "/" + arg[3]
+					+ " && module load nexus && " + Constants.STANDALONE_EXEC
+					+ " *.fcs -c `pwd`/" + arg[3] + " -s " + arg[2];
 			System.out.println("COMMAND1: " + command1);
 			Channel channel1 = session.openChannel("exec");
 			((ChannelExec) channel1).setCommand(command1);

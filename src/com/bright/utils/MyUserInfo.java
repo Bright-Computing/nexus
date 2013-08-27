@@ -22,8 +22,8 @@ public class MyUserInfo implements UserInfo, UIKeyboardInteractive {
 	public boolean promptYesNo(String str) {
 		Object[] options = { "yes", "no" };
 		int foo = JOptionPane.showOptionDialog(null, str, "Warning",
-				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
-				null, options, options[0]);
+				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null,
+				options, options[0]);
 		return foo == 0;
 	}
 
@@ -55,12 +55,12 @@ public class MyUserInfo implements UserInfo, UIKeyboardInteractive {
 	}
 
 	final GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1, 1,
-			GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
-			new Insets(0, 0, 0, 0), 0, 0);
+			GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(
+					0, 0, 0, 0), 0, 0);
 	private Container panel;
 
-	public String[] promptKeyboardInteractive(String destination,
-			String name, String instruction, String[] prompt, boolean[] echo) {
+	public String[] promptKeyboardInteractive(String destination, String name,
+			String instruction, String[] prompt, boolean[] echo) {
 		panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
 

@@ -38,16 +38,19 @@ public class ScpFrom {
 
 			JSch jsch = new JSch();
 			Session session = jsch.getSession(user, host, 22);
-			
-			try{
-				jsch.setKnownHosts(System.getProperty("user.home")+ File.separator + Constants.BRIGHT_CACHE_DIR + File.separator + "known_hosts");
-				jsch.addIdentity(System.getProperty("user.home")+ File.separator + Constants.BRIGHT_CACHE_DIR + File.separator + "id_dsa");
-				}
-				catch (Exception e){
-					System.out.println("No SSH keys found.");
-				
-				}
-			
+
+			try {
+				jsch.setKnownHosts(System.getProperty("user.home")
+						+ File.separator + Constants.BRIGHT_CACHE_DIR
+						+ File.separator + "known_hosts");
+				jsch.addIdentity(System.getProperty("user.home")
+						+ File.separator + Constants.BRIGHT_CACHE_DIR
+						+ File.separator + "id_dsa");
+			} catch (Exception e) {
+				System.out.println("No SSH keys found.");
+
+			}
+
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
 			session.setUserInfo(ui);
