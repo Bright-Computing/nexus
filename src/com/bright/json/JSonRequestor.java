@@ -14,9 +14,9 @@ import com.bright.cmcall.cmLogin;
 import com.bright.cmcall.cmMain;
 import com.bright.cmcall.cmLogout;
 import com.bright.cmcall.cmReadFile;
+import com.bright.cmcall.cmgetVersion;
 import com.bright.cmcall.jobGet;
 import com.bright.cmcall.jobSubmit;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -285,6 +285,33 @@ public class JSonRequestor {
 		System.out.println("Succesfully Logged Off");
 	}
 
+	
+	public static void chkVersion(String cmURL, List<Cookie> cookies) {
+		// Logout and purge cookie on server
+		cmMain mainreq = new cmMain();
+		mainreq.setService("cmmain");
+		mainreq.setCall("getVersion");
+
+
+		Gson g = new Gson();
+		String json = g.toJson(mainreq);
+
+		
+		String ver_string = doRequest(json, cmURL, cookies);
+		cmgetVersion getVer = new Gson().fromJson(ver_string, cmgetVersion.class);
+		System.out.println("Version JSON String " + ver_string);
+		String message = getVer.getCmdaemonBuild().toString();
+		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");
+		int build_ver = resInt.nextInt();
+		if (build_ver < Constants.CMDAEM0N_MIN_BUILD){
+			System.out.println("You neede CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
+			System.exit(0); 
+		}
+
+		System.out.println("Succesfully Logged Off");
+	}
+
+	
 	public static void main(String[] args) {
 		String fileBasename = null;
 		String[] zipArgs = null;
@@ -374,9 +401,7 @@ public class JSonRequestor {
 
 		String cmURL = "https://" + rhost + ":8081/json";
 		List<Cookie> cookies = doLogin(ruser, rpass, cmURL);
-		cmMain mainreq = new cmMain();
-		mainreq.setService("cmmain");
-		mainreq.setCall("getMasterIPs");
+		chkVersion(cmURL, cookies);
 
 		jobSubmit myjob = new jobSubmit();
 		jobSubmit.jobObject myjobObj = new jobSubmit.jobObject();
@@ -433,10 +458,9 @@ public class JSonRequestor {
 		// Gson g = new Gson();
 		Gson g = builder.create();
 
-		String json1 = g.toJson(mainreq);
-		System.out.println("JSON Request No. 2 " + json1);
+	
 		String json2 = g.toJson(myjob);
-		System.out.println("JSON Request No. 3 " + json2);
+		
 
 		// To be used from a real console and not Eclipse
 		Delete.main(zipArgs[1]);
@@ -444,7 +468,9 @@ public class JSonRequestor {
 		// AuthRequestor.AuthRequest(cmURL);
 		JSonRequestor jSonRequestor = new JSonRequestor();
 		// jSonRequestor.doRequest(json, cmURL );
+		
 
+		
 		String message = jSonRequestor.doRequest(json2, cmURL, cookies);
 		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");
 		int jobID = resInt.nextInt();

@@ -15,7 +15,8 @@ public final class Constants {
 	public static final String STANDALONE_EXEC = "/cm/shared/apps/nexus/nexussimulators/LinuxEM64/standaloneEM64_5000_4_7.exe";
 	public static final String BRIGHT_CACHE_DIR = "Bright";
 	public static final int STATUS_CHECK_INTERVAL = 10000;
-
+	public static final int CMDAEM0N_MIN_BUILD = 100;
+	
 	private void Constants() {
 
 		throw new AssertionError();
