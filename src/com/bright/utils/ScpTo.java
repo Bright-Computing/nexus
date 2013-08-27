@@ -10,6 +10,7 @@
 
 package com.bright.utils;
 
+import com.bright.json.Constants;
 import com.jcraft.jsch.*;
 
 import java.awt.*;
@@ -18,38 +19,43 @@ import javax.swing.*;
 
 import java.io.*;
 
-public class ScpFrom {
-	public static void main(String[] arg) {
+public class ScpTo {
+	public static String[] main(String[] arg) {
 
-		FileOutputStream fos = null;
+		FileInputStream fis = null;
 		try {
 
-			String user = arg[0].substring(0, arg[0].indexOf('@'));
-			arg[0] = arg[0].substring(arg[0].indexOf('@') + 1);
-			String host = arg[0].substring(0, arg[0].indexOf(':'));
-			String rfile = arg[0].substring(arg[0].indexOf(':') + 1);
-			String lfile = arg[1];
-
-			String prefix = null;
-			if (new File(lfile).isDirectory()) {
-				prefix = lfile + File.separator;
-			}
+			String lfile = arg[0];
+			String user = arg[1].substring(0, arg[1].indexOf('@'));
+			arg[1] = arg[1].substring(arg[1].indexOf('@') + 1);
+			String host = arg[1].substring(0, arg[1].indexOf(':'));
+			String rfile = arg[1].substring(arg[1].indexOf(':') + 1);
 
 			JSch jsch = new JSch();
 			Session session = jsch.getSession(user, host, 22);
-			jsch.setKnownHosts(System.getProperty("user.home")+ File.separator + "Bright" + File.separator + "known_hosts");
-			jsch.addIdentity(System.getProperty("user.home")+ File.separator + "Bright" + File.separator + "id_dsa");
+			try {
+				jsch.setKnownHosts(System.getProperty("user.home")
+						+ File.separator + Constants.BRIGHT_CACHE_DIR
+						+ File.separator + "known_hosts");
+				jsch.addIdentity(System.getProperty("user.home")
+						+ File.separator + Constants.BRIGHT_CACHE_DIR
+						+ File.separator + "id_dsa");
+			} catch (Exception e) {
+				// JOptionPane.showMessageDialog(null,"No SSH keys found.");
+				System.out.println("No SSH keys found.");
+
+			}
 			// username and password will be given via UserInfo interface.
 			UserInfo ui = new MyUserInfo();
+
 			session.setUserInfo(ui);
 			session.connect();
 
-			String myDir = arg[2] + "/" + arg[3];
-			String command2 = "cd " + arg[2] + " && /usr/bin/zip -r " + arg[3]
-					+ "_out.zip " + arg[3] + " -x " + myDir + "/"
-					+ "{nexus_data, *.fcs, .* , *.rst, *.rpt}"
-					+ " 2>&1 > /dev/null";
-			System.out.println("cmd2: " + command2);
+			boolean ptimestamp = true;
+
+			System.out.println("rfile " + rfile);
+			String command2 = "mkdir -p /" + rfile + " 2>&1; touch " + rfile
+					+ "/std{in,out,err}-mpi 2>&1; cd " + rfile;
 
 			Channel channel2 = session.openChannel("exec");
 			((ChannelExec) channel2).setCommand(command2);
@@ -81,8 +87,10 @@ public class ScpFrom {
 			}
 			channel2.disconnect();
 
-			// exec 'scp -f rfile' remotely
-			String command = "scp -f " + rfile;
+			// exec 'scp -t rfile' remotely
+			String command = "scp " + (ptimestamp ? "-p" : "") + " -t" + " -r "
+					+ rfile;
+			System.out.println("SSH command: " + command);
 			Channel channel = session.openChannel("exec");
 			((ChannelExec) channel).setCommand(command);
 
@@ -92,82 +100,73 @@ public class ScpFrom {
 
 			channel.connect();
 
-			byte[] buf = new byte[1024];
+			if (checkAck(in) != 0) {
+				System.exit(0);
+			}
 
+			File _lfile = new File(lfile);
+
+			if (ptimestamp) {
+				command = "T " + (_lfile.lastModified() / 1000) + " 0";
+				// The access time should be sent here,
+				// but it is not accessible with JavaAPI ;-<
+				command += (" " + (_lfile.lastModified() / 1000) + " 0\n");
+				out.write(command.getBytes());
+				out.flush();
+				if (checkAck(in) != 0) {
+					System.exit(0);
+				}
+			}
+
+			// send "C0644 filesize filename", where filename should not include
+			// '/'
+			long filesize = _lfile.length();
+			command = "C0644 " + filesize + " ";
+			if (lfile.lastIndexOf(File.separator) > 0) {
+				command += lfile
+						.substring(lfile.lastIndexOf(File.separator) + 1);
+			} else {
+				command += lfile;
+			}
+			command += "\n";
+			out.write(command.getBytes());
+			out.flush();
+			if (checkAck(in) != 0) {
+				System.exit(0);
+			}
+
+			// send a content of lfile
+			fis = new FileInputStream(lfile);
+			byte[] buf = new byte[1024];
+			while (true) {
+				int len = fis.read(buf, 0, buf.length);
+				if (len <= 0)
+					break;
+				out.write(buf, 0, len); // out.flush();
+			}
+			fis.close();
+			fis = null;
 			// send '\0'
 			buf[0] = 0;
 			out.write(buf, 0, 1);
 			out.flush();
-
-			while (true) {
-				int c = checkAck(in);
-				if (c != 'C') {
-					break;
-				}
-
-				// read '0644 '
-				in.read(buf, 0, 5);
-
-				long filesize = 0L;
-				while (true) {
-					if (in.read(buf, 0, 1) < 0) {
-						// error
-						break;
-					}
-					if (buf[0] == ' ')
-						break;
-					filesize = filesize * 10L + (long) (buf[0] - '0');
-				}
-
-				String file = null;
-				for (int i = 0;; i++) {
-					in.read(buf, i, 1);
-					if (buf[i] == (byte) 0x0a) {
-						file = new String(buf, 0, i);
-						break;
-					}
-				}
-
-				// System.out.println("filesize="+filesize+", file="+file);
-
-				// send '\0'
-				buf[0] = 0;
-				out.write(buf, 0, 1);
-				out.flush();
-
-				// read a content of lfile
-				fos = new FileOutputStream(prefix == null ? lfile : prefix
-						+ file);
-				int foo;
-				while (true) {
-					if (buf.length < filesize)
-						foo = buf.length;
-					else
-						foo = (int) filesize;
-					foo = in.read(buf, 0, foo);
-					if (foo < 0) {
-						// error
-						break;
-					}
-					fos.write(buf, 0, foo);
-					filesize -= foo;
-					if (filesize == 0L)
-						break;
-				}
-				fos.close();
-				fos = null;
-
-				if (checkAck(in) != 0) {
-					System.exit(0);
-				}
-
-				// send '\0'
-				buf[0] = 0;
-				out.write(buf, 0, 1);
-				out.flush();
+			if (checkAck(in) != 0) {
+				System.exit(0);
 			}
+			out.close();
 
-			String command1 = "rm -rf " + rfile;
+			channel.disconnect();
+			// session.disconnect();
+			System.out.println("Transfered succeded. Closing SCP channel.");
+			System.out.println("rfile " + rfile);
+			String command1 = "cd " + rfile + " && /usr/bin/unzip -o " + rfile
+					+ "/"
+					+ arg[0].substring(arg[0].lastIndexOf(File.separator) + 1)
+					+ " && rm -rf " + rfile + "/"
+					+ arg[0].substring(arg[0].lastIndexOf(File.separator) + 1)
+					+ " && cd " + rfile + "/" + arg[3]
+					+ " && module load nexus && " + Constants.STANDALONE_EXEC
+					+ " *.fcs -c `pwd`/" + arg[3] + " -s " + arg[2];
 			System.out.println("COMMAND1: " + command1);
 			Channel channel1 = session.openChannel("exec");
 			((ChannelExec) channel1).setCommand(command1);
@@ -198,20 +197,24 @@ public class ScpFrom {
 				}
 			}
 			channel1.disconnect();
-
 			session.disconnect();
-			System.out
-					.print("Transferred file " + arg[1] + " to local system.");
 
-			System.exit(0);
+			String[] Uauth = new String[] { user, ui.getPassword() };
+
+			return Uauth;
+			// System.exit(0);
 		} catch (Exception e) {
 			System.out.println(e);
 			try {
-				if (fos != null)
-					fos.close();
+				if (fis != null)
+					fis.close();
+				return null;
 			} catch (Exception ee) {
+				return null;
 			}
+
 		}
+
 	}
 
 	static int checkAck(InputStream in) throws IOException {

@@ -14,6 +14,7 @@ import com.bright.cmcall.cmLogin;
 import com.bright.cmcall.cmMain;
 import com.bright.cmcall.cmLogout;
 import com.bright.cmcall.cmReadFile;
+import com.bright.cmcall.cmgetVersion;
 import com.bright.cmcall.jobGet;
 import com.bright.cmcall.jobSubmit;
 import com.google.gson.Gson;
@@ -105,14 +106,12 @@ import com.bright.utils.ZipFile;
 import com.bright.utils.Delete;
 import com.bright.json.TextPrompt;
 
-//
-
 public class JSonRequestor {
 
 	public JSonRequestor() {
 	}
 
-	private HttpClient getNewHttpClient() {
+	private static HttpClient getNewHttpClient() {
 		try {
 			KeyStore trustStore = KeyStore.getInstance(KeyStore
 					.getDefaultType());
@@ -137,28 +136,37 @@ public class JSonRequestor {
 		}
 	}
 
-	private String doRequest(String jsonReq, String jsonReq1, String myURL) {
+	public static List<Cookie> doLogin(String user, String pass, String myURL) {
 		URL serverURL = null;
 		try {
+			cmLogin loginReq = new cmLogin();
+			loginReq.setService("login");
 
-			// HttpClient httpclient = new DefaultHttpClient(); 
+			loginReq.setUsername(user);
+			loginReq.setPassword(pass);
+
+			GsonBuilder builder = new GsonBuilder();
+
+			Gson g = builder.create();
+			String json = g.toJson(loginReq);
+
+			/* HttpClient httpclient = new DefaultHttpClient(); */
 
 			HttpClient httpclient = getNewHttpClient();
 			CookieStore cookieStore = new BasicCookieStore();
+
 			HttpContext localContext = new BasicHttpContext();
 			localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
-			
-			/*
-			 * httpclient = WebClientDevWrapper.wrapClient(httpclient);
-			 */
-			
+
+			/* httpclient = WebClientDevWrapper.wrapClient(httpclient); */
+
 			httpclient.getParams().setParameter(ClientPNames.COOKIE_POLICY,
 					CookiePolicy.BROWSER_COMPATIBILITY);
 			HttpParams params = httpclient.getParams();
 			HttpConnectionParams.setConnectionTimeout(params, 1000);
 			HttpConnectionParams.setSoTimeout(params, 1000);
 			HttpPost httppost = new HttpPost(myURL);
-			StringEntity stringEntity = new StringEntity(jsonReq);
+			StringEntity stringEntity = new StringEntity(json);
 			stringEntity.setContentType("application/json");
 			httppost.setEntity(stringEntity);
 
@@ -185,69 +193,11 @@ public class JSonRequestor {
 				System.out.println("Response content length: "
 						+ resEntity.getContentLength());
 				System.out.println("Chunked?: " + resEntity.isChunked());
-				System.out.println(EntityUtils.toString(resEntity));
+				String message = new String(EntityUtils.toString(resEntity));
+				System.out.println(message);
+				return cookies;
 			}
 			EntityUtils.consume(resEntity);
-
-			StringEntity stringEntity1 = new StringEntity(jsonReq1);
-			stringEntity.setContentType("application/json");
-			httppost.setEntity(stringEntity1);
-			HttpResponse response1 = httpclient.execute(httppost, localContext);
-			System.out.println(response1 + "\n");
-			for (Cookie c : ((AbstractHttpClient) httpclient).getCookieStore()
-					.getCookies()) {
-				System.out.println("\n Cookie: " + c.toString() + "\n");
-			}
-
-			List<Cookie> cookies1 = cookieStore.getCookies();
-			for (int i = 0; i < cookies1.size(); i++) {
-				System.out.println("Local cookie: " + cookies1.get(i));
-			}
-
-			HttpEntity resEntity1 = response1.getEntity();
-
-			System.out.println("----------------------------------------");
-			System.out.println(response1.getStatusLine());
-			if (resEntity1 != null) {
-				System.out.println("Response content length: "
-						+ resEntity1.getContentLength());
-				System.out.println("Chunked?: " + resEntity1.isChunked());
-				String message = new String(EntityUtils.toString(resEntity1));
-				System.out.println(message);
-
-
-				return message;
-			}
-
-			EntityUtils.consume(resEntity1);
-
-			// Logout and purge cookie on server
-
-			cmLogout logoutReq = new cmLogout();
-			logoutReq.setService("logout");
-
-			Gson g = new Gson();
-			String json2 = g.toJson(logoutReq);
-
-			StringEntity stringEntity2 = new StringEntity(json2);
-			stringEntity.setContentType("application/json");
-			httppost.setEntity(stringEntity2);
-			HttpResponse response2 = httpclient.execute(httppost, localContext);
-			System.out.println(response2 + "\n");
-
-			HttpEntity resEntity2 = response2.getEntity();
-
-			System.out.println("----------------------------------------");
-			System.out.println(response2.getStatusLine());
-			if (resEntity2 != null) {
-				System.out.println("Response content length: "
-						+ resEntity2.getContentLength());
-				System.out.println("Chunked?: " + resEntity2.isChunked());
-				System.out.println(EntityUtils.toString(resEntity2));
-			}
-			EntityUtils.consume(resEntity2);
-
-			System.out.println("Succesfully Logged Off");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -258,52 +208,162 @@ public class JSonRequestor {
 
 	}
 
-	public static void fileSpooler() {
+	public static String doRequest(String jsonReq, String myURL,
+			List<Cookie> cookies) {
+		URL serverURL = null;
+		try {
 
-		// New rsync based file transfer
-	}
+			/* HttpClient httpclient = new DefaultHttpClient(); */
 
-	public static void main(String[] args) throws IOException {
+			HttpClient httpclient = getNewHttpClient();
+			CookieStore cookieStore = new BasicCookieStore();
+			Cookie[] cookiearray = cookies.toArray(new Cookie[0]);
+			cookieStore.addCookie(cookiearray[0]);
+			HttpContext localContext = new BasicHttpContext();
+			localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 
-		JFileChooser chooser = new JFileChooser();
-		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setDialogTitle("Select the input directory");
+			/* httpclient = WebClientDevWrapper.wrapClient(httpclient); */
 
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		chooser.setAcceptAllFileFilterUsed(false);
+			httpclient.getParams().setParameter(ClientPNames.COOKIE_POLICY,
+					CookiePolicy.BROWSER_COMPATIBILITY);
+			HttpParams params = httpclient.getParams();
+			HttpConnectionParams.setConnectionTimeout(params, 1000);
+			HttpConnectionParams.setSoTimeout(params, 1000);
+			HttpPost httppost = new HttpPost(myURL);
+			StringEntity stringEntity = new StringEntity(jsonReq);
+			stringEntity.setContentType("application/json");
+			httppost.setEntity(stringEntity);
 
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			System.out.println("getCurrentDirectory(): "
-					+ chooser.getCurrentDirectory());
-			System.out.println("getSelectedFile() : "
-					+ chooser.getSelectedFile());
+			System.out
+					.println("executing request " + httppost.getRequestLine());
+			HttpResponse response = httpclient.execute(httppost, localContext);
 
-		} else {
-			System.out.println("No Selection ");
+			System.out.println(response + "\n");
+			for (Cookie c : ((AbstractHttpClient) httpclient).getCookieStore()
+					.getCookies()) {
+				System.out.println("\n Cookie: " + c.toString() + "\n");
+			}
+
+			HttpEntity resEntity = response.getEntity();
+
+			System.out.println("----------------------------------------");
+			System.out.println(response.getStatusLine());
+			if (resEntity != null) {
+				System.out.println("Response content length: "
+						+ resEntity.getContentLength());
+				System.out.println("Chunked?: " + resEntity.isChunked());
+				String message = new String(EntityUtils.toString(resEntity));
+				System.out.println(message);
+				return message;
+			}
+			EntityUtils.consume(resEntity);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
 
-		// String fileBasename =
-		// chooser.getSelectedFile().toString().substring(chooser.getSelectedFile().toString().lastIndexOf(File.separator)+1,chooser.getSelectedFile().toString().lastIndexOf("."));
-		String fileBasename = chooser
-				.getSelectedFile()
-				.toString()
-				.substring(
-						chooser.getSelectedFile().toString()
-								.lastIndexOf(File.separator) + 1);
-		System.out.println("Base name: " + fileBasename);
+		return null;
 
-		String[] zipArgs = new String[] {
-				chooser.getSelectedFile().toString(),
-				chooser.getCurrentDirectory().toString() + File.separator
-						+ fileBasename + ".zip" };
-		com.bright.utils.ZipFile.main(zipArgs);
+	}
+
+	public static int fileSpooler() {
+
+		return 0;
+	}
+
+	public static void doLogout(String cmURL, List<Cookie> cookies) {
+		// Logout and purge cookie on server
+
+		cmLogout logoutReq = new cmLogout();
+		logoutReq.setService("logout");
+		Gson g = new Gson();
+		String json = g.toJson(logoutReq);
+
+		JSonRequestor.doRequest(json, cmURL, cookies);
+
+		System.out.println("Succesfully Logged Off");
+	}
+
+	
+	public static void chkVersion(String cmURL, List<Cookie> cookies) {
+		// Logout and purge cookie on server
+		cmMain mainreq = new cmMain();
+		mainreq.setService("cmmain");
+		mainreq.setCall("getVersion");
+
+
+		Gson g = new Gson();
+		String json = g.toJson(mainreq);
+
+		
+		String ver_string = doRequest(json, cmURL, cookies);
+		cmgetVersion getVer = new Gson().fromJson(ver_string, cmgetVersion.class);
+		System.out.println("Version JSON String " + ver_string);
+		String message = getVer.getCmdaemonBuild().toString();
+		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");
+		int build_ver = resInt.nextInt();
+		if (build_ver < Constants.CMDAEM0N_MIN_BUILD){
+			JOptionPane.showMessageDialog(null, "You need CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
+			System.out.println("You need CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
+			System.exit(0); 
+		}
+
+		System.out.println("Succesfully Logged Off");
+	}
+
+	
+	public static void main(String[] args) {
+		String fileBasename = null;
+		String[] zipArgs = null;
+		JFileChooser chooser = new JFileChooser();
+		try {
+
+			chooser.setCurrentDirectory(new java.io.File("."));
+			chooser.setDialogTitle("Select the RST file structure");
+
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			chooser.setAcceptAllFileFilterUsed(false);
+
+			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				System.out.println("getCurrentDirectory(): "
+						+ chooser.getCurrentDirectory());
+				System.out.println("getSelectedFile() : "
+						+ chooser.getSelectedFile());
+
+				// String fileBasename =
+				// chooser.getSelectedFile().toString().substring(chooser.getSelectedFile().toString().lastIndexOf(File.separator)+1,chooser.getSelectedFile().toString().lastIndexOf("."));
+				fileBasename = chooser
+						.getSelectedFile()
+						.toString()
+						.substring(
+								chooser.getSelectedFile().toString()
+										.lastIndexOf(File.separator) + 1);
+				System.out.println("Base name: " + fileBasename);
+
+				zipArgs = new String[] {
+						chooser.getSelectedFile().toString(),
+						chooser.getCurrentDirectory().toString()
+								+ File.separator + fileBasename + ".zip" };
+				com.bright.utils.ZipFile.main(zipArgs);
+
+			} else {
+				System.out.println("No Selection ");
+
+			}
+		} catch (Exception e) {
+
+			System.out.println(e.toString());
+
+		}
 
 		JTextField uiHost = new JTextField(20);
 		TextPrompt puiHost = new TextPrompt("hadoop.brightcomputing.com",
 				uiHost);
 		JTextField uiUser = new JTextField(20);
 		TextPrompt puiUser = new TextPrompt("nexus", uiUser);
-		JPasswordField uiPass = new JPasswordField(20);
+		JTextField uiPass = new JPasswordField(20);
+		TextPrompt puiPass = new TextPrompt("", uiPass);
 		JTextField uiWdir = new JTextField(20);
 		TextPrompt puiWdir = new TextPrompt("/home/nexus/nexus_workdir", uiWdir);
 		JTextField uiOut = new JTextField(20);
@@ -333,28 +393,16 @@ public class JSonRequestor {
 		String rfile = uiWdir.getText();
 		String rhost = uiHost.getText();
 		String ruser = uiUser.getText();
-		String nexusOut = uiOut.getText();
 		String rpass = uiPass.getText();
+		String nexusOut = uiOut.getText();
 
 		String[] myarg = new String[] { zipArgs[1],
 				ruser + "@" + rhost + ":" + rfile, nexusOut, fileBasename };
 		String[] Uauth = com.bright.utils.ScpTo.main(myarg);
 
-		cmLogin loginReq = new cmLogin();
-		loginReq.setService("login");
-		try {
-			loginReq.setUsername(ruser);
-			loginReq.setPassword(rpass);
-
-		} catch (NullPointerException e) {
-			System.out.println("cancelled due to incorrect input");
-			System.exit(0);
-
-		}
 		String cmURL = "https://" + rhost + ":8081/json";
-		cmMain mainreq = new cmMain();
-		mainreq.setService("cmmain");
-		mainreq.setCall("getMasterIPs");
+		List<Cookie> cookies = doLogin(ruser, rpass, cmURL);
+		chkVersion(cmURL, cookies);
 
 		jobSubmit myjob = new jobSubmit();
 		jobSubmit.jobObject myjobObj = new jobSubmit.jobObject();
@@ -383,15 +431,11 @@ public class JSonRequestor {
 		myjobObj.setCommandLineInterpreter("/bin/bash");
 		myjobObj.setUserdefined(Arrays.asList("cd " + rfile, "date", "pwd"));
 		myjobObj.setExecutable("mpirun");
-		myjobObj.setArguments("-env I_MPI_FABRICS shm:tcp /cm/shared/apps/nexus/nexussimulators/LinuxEM64/nexusEM64_5000_4_7.exe -mpi -c "
-				+ rfile
-				+ "/"
-				+ fileBasename
-				+ "/"
-				+ fileBasename
-				+ " -s "
-				+ rfile + "/" + fileBasename + "/" + nexusOut);
-		myjobObj.setModules(Arrays.asList("shared", "nexus","intel-mpi/64"));
+		myjobObj.setArguments("-env I_MPI_FABRICS shm:tcp "
+				+ Constants.NEXUSSIM_EXEC + " -mpi -c " + rfile + "/"
+				+ fileBasename + "/" + fileBasename + " -s " + rfile + "/"
+				+ fileBasename + "/" + nexusOut);
+		myjobObj.setModules(Arrays.asList("shared", "nexus", "intel-mpi/64"));
 		myjobObj.setDebug(false);
 		myjobObj.setBaseType("Job");
 		myjobObj.setIsSlurm(true);
@@ -414,12 +458,10 @@ public class JSonRequestor {
 
 		// Gson g = new Gson();
 		Gson g = builder.create();
-		String json = g.toJson(loginReq);
-		System.out.println("JSON Request No. 1 " + json);
-		String json1 = g.toJson(mainreq);
-		System.out.println("JSON Request No. 2 " + json1);
+
+	
 		String json2 = g.toJson(myjob);
-		System.out.println("JSON Request No. 3 " + json2);
+		
 
 		// To be used from a real console and not Eclipse
 		Delete.main(zipArgs[1]);
@@ -427,8 +469,10 @@ public class JSonRequestor {
 		// AuthRequestor.AuthRequest(cmURL);
 		JSonRequestor jSonRequestor = new JSonRequestor();
 		// jSonRequestor.doRequest(json, cmURL );
+		
 
-		String message = jSonRequestor.doRequest(json, json2, cmURL);
+		
+		String message = jSonRequestor.doRequest(json2, cmURL, cookies);
 		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");
 		int jobID = resInt.nextInt();
 		System.out.println("Job ID: " + jobID);
@@ -451,12 +495,12 @@ public class JSonRequestor {
 		cmReadFile readfile = new cmReadFile();
 		readfile.setService("cmmain");
 		readfile.setCall("readFile");
-		readfile.setUserName(ruser);
+		readfile.setUserName("nexus");
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 				+ ".sum");
 		String json4 = g.toJson(readfile);
 
-		String getJobJSON = jSonRequestor.doRequest(json, json3, cmURL);
+		String getJobJSON = jSonRequestor.doRequest(json3, cmURL, cookies);
 		jobGet getJobObj = new Gson().fromJson(getJobJSON, jobGet.class);
 		System.out.println("Job " + jobID + " status: "
 				+ getJobObj.getStatus().toString());
@@ -465,11 +509,11 @@ public class JSonRequestor {
 				|| getJobObj.getStatus().toString().equals("COMPLETING")) {
 			try {
 
-				getJobJSON = jSonRequestor.doRequest(json, json3, cmURL);
+				getJobJSON = jSonRequestor.doRequest(json3, cmURL, cookies);
 				getJobObj = new Gson().fromJson(getJobJSON, jobGet.class);
 				System.out.println("Job " + jobID + " status: "
 						+ getJobObj.getStatus().toString());
-				Thread.sleep(10000);
+				Thread.sleep(Constants.STATUS_CHECK_INTERVAL);
 			} catch (InterruptedException ex) {
 				Thread.currentThread().interrupt();
 			}
@@ -480,17 +524,20 @@ public class JSonRequestor {
 		String json_out = gson_nice.toJson(getJobJSON);
 		System.out.println(json_out);
 		System.out.println("JSON Request No. 5 " + json4);
-		String monFile = jSonRequestor.doRequest(json, json4, cmURL);
+		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies);
 		System.out.print("Monitoring file: "
 				+ monFile.replaceAll("\n+",
 						System.getProperty("line.separator")));
-		FileUtils
-				.writeStringToFile(new File(chooser.getCurrentDirectory()
-						.toString()
-						+ File.separator
-						+ fileBasename
-						+ ".sum.txt"), monFile.replaceAll("\n+",
-						System.getProperty("line.separator")));
+		try {
+			FileUtils.writeStringToFile(
+					new File(chooser.getCurrentDirectory().toString()
+							+ File.separator + fileBasename + ".sum.txt"),
+					monFile.replaceAll("\n+",
+							System.getProperty("line.separator")));
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
 
 		if (getJobObj.getStatus().toString().equals("COMPLETED")) {
 			String[] zipArgs_from = new String[] {
@@ -501,8 +548,8 @@ public class JSonRequestor {
 					ruser + "@" + rhost + ":" + rfile + "/" + fileBasename
 							+ "_out.zip", zipArgs_from[1], rfile, fileBasename };
 			com.bright.utils.ScpFrom.main(myarg_from);
-			monFile = jSonRequestor.doRequest(json, json4, cmURL);
-			System.out.print(monFile.replaceAll("\n",
+			monFile = jSonRequestor.doRequest(json4, cmURL, cookies);
+			System.out.print(monFile.replaceAll("\n+",
 					System.getProperty("line.separator")));
 			JOptionPane optionPaneS = new JOptionPane(
 					"Job execution completed without errors!");
@@ -516,6 +563,7 @@ public class JSonRequestor {
 			myDialogF.setModal(false);
 			myDialogF.setVisible(true);
 		}
+		doLogout(cmURL, cookies);
 
 	}
 
