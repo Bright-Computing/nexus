@@ -509,7 +509,7 @@ public class JSonRequestor {
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 				+ ".sum@+" + fileByteIdx );
 		String json4 = g.toJson(readfile);
-		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\n",
+		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
 				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
 		
 		fileByteIdx += countLines(monFile, "\\n") + 1;		
@@ -519,9 +519,9 @@ public class JSonRequestor {
 		String nl = System.getProperty("line.separator");
 		String filename = chooser.getCurrentDirectory().toString()
 							+ File.separator + fileBasename + ".sum.txt";
-		System.out.println("Local moniotring file: " +  filename);
+		System.out.println("Local monitoring file: " +  filename);
 		
-		output.append(monFile.replaceAll("\\n",
+		output.append(monFile.replaceAll("\\\\n",
 				System.getProperty("line.separator")));
 		
 		
@@ -543,9 +543,9 @@ public class JSonRequestor {
 				readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 						+ ".sum@+" + fileByteIdx );
 				json4 = g.toJson(readfile);
-				monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\n",
+				monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
 						System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
-				output.append(monFile.replaceAll("\\n",
+				output.append(monFile.replaceAll("\\\\n",
 						System.getProperty("line.separator")));
 				System.out.println("MonFile:" + monFile);
 				fileByteIdx += countLines(monFile, "\\n") + 1;
@@ -565,9 +565,9 @@ public class JSonRequestor {
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 				+ ".sum@+" + fileByteIdx );
 		json4 = g.toJson(readfile);
-		monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\n",
+		monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
 				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
-		output.append(monFile.replaceAll("\\n",
+		output.append(monFile.replaceAll("\\\\n",
 				System.getProperty("line.separator")));
 		fileByteIdx += countLines(monFile, "\\n") + 1;
 		
@@ -619,7 +619,7 @@ public class JSonRequestor {
 			  BufferedWriter out = new BufferedWriter(
 			                       new FileWriter(filename));
 			  String outText = output.toString();
-			  String newString = outText.replace("\n", nl);
+			  String newString = outText.replace("\\\\n", nl);
 			  out.flush();
 			  System.out.println("Text: " + outText);
 			  out.write(newString);
