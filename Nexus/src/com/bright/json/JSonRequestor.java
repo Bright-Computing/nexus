@@ -512,7 +512,7 @@ public class JSonRequestor {
 		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
 				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
 		
-		fileByteIdx += countLines(monFile, "\\n") + 1;		
+		fileByteIdx += countLines(monFile, "\\\\n") + 1;		
 		
 		StringBuffer output = new StringBuffer();
 		// Get the correct Line Separator for the OS (CRLF or LF)
@@ -548,7 +548,7 @@ public class JSonRequestor {
 				output.append(monFile.replaceAll("\\\\n",
 						System.getProperty("line.separator")));
 				System.out.println("MonFile:" + monFile);
-				fileByteIdx += countLines(monFile, "\\n") + 1;
+				fileByteIdx += countLines(monFile, "\\\\n") + 1;
 				
 				Thread.sleep(Constants.STATUS_CHECK_INTERVAL);
 			} catch (InterruptedException ex) {
@@ -569,7 +569,7 @@ public class JSonRequestor {
 				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
 		output.append(monFile.replaceAll("\\\\n",
 				System.getProperty("line.separator")));
-		fileByteIdx += countLines(monFile, "\\n") + 1;
+		fileByteIdx += countLines(monFile, "\\\\n") + 1;
 		
 		
 /*		System.out.print("Monitoring file: "
