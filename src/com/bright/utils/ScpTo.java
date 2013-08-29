@@ -162,7 +162,7 @@ public class ScpTo {
 			String command1 = "cd " + rfile + " && /usr/bin/unzip -o " + rfile
 					+ "/"
 					+ arg[0].substring(arg[0].lastIndexOf(File.separator) + 1)
-					+ " && rm -rf " + rfile + "/"
+					+ " ; rm -rf " + rfile + "/"
 					+ arg[0].substring(arg[0].lastIndexOf(File.separator) + 1)
 					+ " && cd " + rfile + "/" + arg[3]
 					+ " && module load nexus && " + Constants.STANDALONE_EXEC
