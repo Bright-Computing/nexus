@@ -34,9 +34,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.io.BufferedWriter;
 import java.io.Console;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.Header;
@@ -311,7 +313,12 @@ public class JSonRequestor {
 
 		System.out.println("Succesfully Logged Off");
 	}
-
+ 
+	public static int countLines(String text, String search) {
+	    int count = text.split(search).length - 1;
+	    return count;
+	}
+	
 	
 	public static void main(String[] args) {
 		String fileBasename = null;
@@ -496,10 +503,29 @@ public class JSonRequestor {
 		readfile.setService("cmmain");
 		readfile.setCall("readFile");
 		readfile.setUserName("nexus");
+		
+		int fileByteIdx= 1;
+		
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
-				+ ".sum");
+				+ ".sum@+" + fileByteIdx );
 		String json4 = g.toJson(readfile);
-
+		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
+				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
+		
+		fileByteIdx += countLines(monFile, "\\\\n") + 1;		
+		
+		StringBuffer output = new StringBuffer();
+		// Get the correct Line Separator for the OS (CRLF or LF)
+		String nl = System.getProperty("line.separator");
+		String filename = chooser.getCurrentDirectory().toString()
+							+ File.separator + fileBasename + ".sum.txt";
+		System.out.println("Local monitoring file: " +  filename);
+		
+		output.append(monFile.replaceAll("\\\\n",
+				System.getProperty("line.separator")));
+		
+		
+		
 		String getJobJSON = jSonRequestor.doRequest(json3, cmURL, cookies);
 		jobGet getJobObj = new Gson().fromJson(getJobJSON, jobGet.class);
 		System.out.println("Job " + jobID + " status: "
@@ -513,6 +539,17 @@ public class JSonRequestor {
 				getJobObj = new Gson().fromJson(getJobJSON, jobGet.class);
 				System.out.println("Job " + jobID + " status: "
 						+ getJobObj.getStatus().toString());
+				
+				readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
+						+ ".sum@+" + fileByteIdx );
+				json4 = g.toJson(readfile);
+				monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
+						System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
+				output.append(monFile.replaceAll("\\\\n",
+						System.getProperty("line.separator")));
+				System.out.println("MonFile:" + monFile);
+				fileByteIdx += countLines(monFile, "\\\\n") + 1;
+				
 				Thread.sleep(Constants.STATUS_CHECK_INTERVAL);
 			} catch (InterruptedException ex) {
 				Thread.currentThread().interrupt();
@@ -524,20 +561,30 @@ public class JSonRequestor {
 		String json_out = gson_nice.toJson(getJobJSON);
 		System.out.println(json_out);
 		System.out.println("JSON Request No. 5 " + json4);
-		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies);
-		System.out.print("Monitoring file: "
-				+ monFile.replaceAll("\n+",
+		
+		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
+				+ ".sum@+" + fileByteIdx );
+		json4 = g.toJson(readfile);
+		monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
+				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
+		output.append(monFile.replaceAll("\\\\n",
+				System.getProperty("line.separator")));
+		fileByteIdx += countLines(monFile, "\\\\n") + 1;
+		
+		
+/*		System.out.print("Monitoring file: "
+				+ monFile.replaceAll("\\n",
 						System.getProperty("line.separator")));
 		try {
 			FileUtils.writeStringToFile(
 					new File(chooser.getCurrentDirectory().toString()
 							+ File.separator + fileBasename + ".sum.txt"),
-					monFile.replaceAll("\n+",
+					monFile.replaceAll("\\n",
 							System.getProperty("line.separator")));
 		} catch (IOException e) {
 
 			e.printStackTrace();
-		}
+		}*/
 
 		if (getJobObj.getStatus().toString().equals("COMPLETED")) {
 			String[] zipArgs_from = new String[] {
@@ -548,9 +595,11 @@ public class JSonRequestor {
 					ruser + "@" + rhost + ":" + rfile + "/" + fileBasename
 							+ "_out.zip", zipArgs_from[1], rfile, fileBasename };
 			com.bright.utils.ScpFrom.main(myarg_from);
-			monFile = jSonRequestor.doRequest(json4, cmURL, cookies);
-			System.out.print(monFile.replaceAll("\n+",
-					System.getProperty("line.separator")));
+
+			
+
+			
+			
 			JOptionPane optionPaneS = new JOptionPane(
 					"Job execution completed without errors!");
 			JDialog myDialogS = optionPaneS.createDialog(null, "Job status: ");
@@ -563,6 +612,24 @@ public class JSonRequestor {
 			myDialogF.setModal(false);
 			myDialogF.setVisible(true);
 		}
+		
+		try {
+			System.out.println("Local monitoring file: " +  filename);
+			
+			  BufferedWriter out = new BufferedWriter(
+			                       new FileWriter(filename));
+			  String outText = output.toString();
+			  String newString = outText.replace("\\\\n", nl);
+			  out.flush();
+			  System.out.println("Text: " + outText);
+			  out.write(newString);
+			  out.flush();
+			  out.close();
+			    }
+			catch (IOException e)
+			    {
+			    e.printStackTrace();
+			    }
 		doLogout(cmURL, cookies);
 
 	}
