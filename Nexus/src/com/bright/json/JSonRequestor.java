@@ -516,9 +516,10 @@ public class JSonRequestor {
 		monFile = "";	
 		}
 		else{
+			fileByteIdx += countLines(monFile, "\\\\n");
 			System.out.println("");
 		}
-		fileByteIdx += countLines(monFile, "\\\\n") + 1;		
+				
 		
 		StringBuffer output = new StringBuffer();
 		// Get the correct Line Separator for the OS (CRLF or LF)
@@ -557,10 +558,10 @@ public class JSonRequestor {
 					
 				
 				output.append(monFile.replaceAll("\\\\n",
-						System.getProperty("line.separator")));}
+						System.getProperty("line.separator")));
 				System.out.println("FILE INDEX:" + fileByteIdx);
-				fileByteIdx += countLines(monFile, "\\\\n") + 1;
-				
+				fileByteIdx += countLines(monFile, "\\\\n");
+				}
 				Thread.sleep(Constants.STATUS_CHECK_INTERVAL);
 			} catch (InterruptedException ex) {
 				Thread.currentThread().interrupt();
@@ -584,8 +585,9 @@ public class JSonRequestor {
 			
 		
 		output.append(monFile.replaceAll("\\\\n",
-				System.getProperty("line.separator")));}
-		fileByteIdx += countLines(monFile, "\\\\n") + 1;
+				System.getProperty("line.separator")));
+		fileByteIdx += countLines(monFile, "\\\\n");
+		}
 		System.out.println("FILE INDEX:" + fileByteIdx);
 		
 /*		System.out.print("Monitoring file: "
