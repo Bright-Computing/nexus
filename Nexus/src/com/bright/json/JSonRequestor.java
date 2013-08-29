@@ -557,7 +557,7 @@ public class JSonRequestor {
 				
 				output.append(monFile.replaceAll("\\\\n",
 						System.getProperty("line.separator")));}
-				System.out.println("MonFile:" + output);
+				System.out.println("FILE INDEX:" + fileByteIdx);
 				fileByteIdx += countLines(monFile, "\\\\n") + 1;
 				
 				Thread.sleep(Constants.STATUS_CHECK_INTERVAL);
@@ -586,7 +586,7 @@ public class JSonRequestor {
 		output.append(monFile.replaceAll("\\\\n",
 				System.getProperty("line.separator")));}
 		fileByteIdx += countLines(monFile, "\\\\n") + 1;
-		
+		System.out.println("FILE INDEX:" + fileByteIdx);
 		
 /*		System.out.print("Monitoring file: "
 				+ monFile.replaceAll("\\n",
@@ -636,10 +636,10 @@ public class JSonRequestor {
 			                       new FileWriter(filename));
 			  String outText = output.toString();
 			  String newString = outText.replace("\\\\n", nl);
-			  out.flush();
+			  
 			  System.out.println("Text: " + outText);
 			  out.write(newString);
-			  out.flush();
+		
 			  out.close();
 			    }
 			catch (IOException e)
@@ -647,7 +647,7 @@ public class JSonRequestor {
 			    e.printStackTrace();
 			    }
 		doLogout(cmURL, cookies);
-
+        System.exit(0);
 	}
 
 }
