@@ -215,7 +215,7 @@ public class ScpFrom {
 			System.out
 					.print("Transferred file " + arg[1] + " to local system.");
 
-			System.exit(0);
+			
 		} catch (Exception e) {
 			System.out.println(e);
 			try {
