@@ -237,7 +237,8 @@ public class JSonRequestor {
 			httppost.setEntity(stringEntity);
 
 			System.out
-					.println("executing request " + httppost.getRequestLine());
+					.println("executing request " + httppost.getRequestLine() + System.getProperty("line.separator") + jsonReq );
+			
 			HttpResponse response = httpclient.execute(httppost, localContext);
 
 			System.out.println(response + "\n");
@@ -309,9 +310,10 @@ public class JSonRequestor {
 			JOptionPane.showMessageDialog(null, "You need CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
 			System.out.println("You need CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
 			System.exit(0); 
+			System.out.println("Succesfully Logged Off");
 		}
 
-		System.out.println("Succesfully Logged Off");
+		
 	}
  
 	public static int countLines(String text, String search) {
@@ -501,15 +503,15 @@ public class JSonRequestor {
 		cmReadFile readfile = new cmReadFile();
 		readfile.setService("cmmain");
 		readfile.setCall("readFile");
-		readfile.setUserName("nexus");
+		readfile.setUserName(ruser);
 		
 		int fileByteIdx= 1;
 		
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 				+ ".sum@+" + fileByteIdx );
 		String json4 = g.toJson(readfile);
-		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
-				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
+		
+		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
 		if(monFile.startsWith("Unable")){
 		monFile = "";	
 		}
@@ -547,8 +549,7 @@ public class JSonRequestor {
 				readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 						+ ".sum@+" + fileByteIdx );
 				json4 = g.toJson(readfile);
-				monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
-						System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
+				monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
 				if(monFile.startsWith("Unable")){
 					monFile = "";	
 					}
@@ -575,8 +576,7 @@ public class JSonRequestor {
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 				+ ".sum@+" + fileByteIdx );
 		json4 = g.toJson(readfile);
-		monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
-				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
+		monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
 		if(monFile.startsWith("Unable")){
 			monFile = "";	
 			}
