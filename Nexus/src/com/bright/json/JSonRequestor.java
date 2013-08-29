@@ -323,11 +323,11 @@ public class JSonRequestor {
 	public static void main(String[] args) {
 		String fileBasename = null;
 		String[] zipArgs = null;
-		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new JFileChooser("/Users/panos/STR_GRID");
 		try {
 
 			chooser.setCurrentDirectory(new java.io.File("."));
-			chooser.setDialogTitle("Select the RST file structure");
+			chooser.setDialogTitle("Select the input directory");
 
 			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			chooser.setAcceptAllFileFilterUsed(false);
@@ -510,7 +510,12 @@ public class JSonRequestor {
 		String json4 = g.toJson(readfile);
 		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
 				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
-		
+		if(monFile.startsWith("Unable")){
+		monFile = "";	
+		}
+		else{
+			System.out.println("");
+		}
 		fileByteIdx += countLines(monFile, "\\\\n") + 1;		
 		
 		StringBuffer output = new StringBuffer();
@@ -544,9 +549,15 @@ public class JSonRequestor {
 				json4 = g.toJson(readfile);
 				monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
 						System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
+				if(monFile.startsWith("Unable")){
+					monFile = "";	
+					}
+				else{
+					
+				
 				output.append(monFile.replaceAll("\\\\n",
-						System.getProperty("line.separator")));
-				System.out.println("MonFile:" + monFile);
+						System.getProperty("line.separator")));}
+				System.out.println("MonFile:" + output);
 				fileByteIdx += countLines(monFile, "\\\\n") + 1;
 				
 				Thread.sleep(Constants.STATUS_CHECK_INTERVAL);
@@ -566,8 +577,14 @@ public class JSonRequestor {
 		json4 = g.toJson(readfile);
 		monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("\\\\n",
 				System.getProperty("line.separator")).replaceAll("^\"|\"$", "");
+		if(monFile.startsWith("Unable")){
+			monFile = "";	
+			}
+		else{
+			
+		
 		output.append(monFile.replaceAll("\\\\n",
-				System.getProperty("line.separator")));
+				System.getProperty("line.separator")));}
 		fileByteIdx += countLines(monFile, "\\\\n") + 1;
 		
 		
