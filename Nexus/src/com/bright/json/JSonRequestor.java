@@ -106,6 +106,7 @@ import com.bright.utils.ScpTo;
 import com.bright.utils.ScpFrom;
 import com.bright.utils.ZipFile;
 import com.bright.utils.Delete;
+import com.bright.utils.rmDuplicateLines;
 import com.bright.json.TextPrompt;
 
 public class JSonRequestor {
@@ -643,6 +644,7 @@ public class JSonRequestor {
 			  out.write(newString);
 		
 			  out.close();
+			  rmDuplicateLines.main(filename);
 			    }
 			catch (IOException e)
 			    {
