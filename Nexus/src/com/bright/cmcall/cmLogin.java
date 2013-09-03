@@ -11,6 +11,13 @@
 package com.bright.cmcall;
 
 public class cmLogin {
+	public cmLogin(String service, String username, String password) {
+		super();
+		this.service = service;
+		this.username = username;
+		this.password = password;
+	}
+
 	private String service;
 	private String username;
 	private String password;

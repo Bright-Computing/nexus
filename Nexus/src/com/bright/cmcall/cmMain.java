@@ -15,7 +15,7 @@ import java.util.List;
 public class cmMain {
 	private String service;
 	private String call;
-	private List args;
+	private List<?> args;
 
 	// other setter and getter
 
@@ -23,7 +23,7 @@ public class cmMain {
 		this.service = service;
 	}
 
-	public void setArgs(List args) {
+	public void setArgs(List<?> args) {
 		this.args = args;
 	}
 

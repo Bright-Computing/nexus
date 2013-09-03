@@ -10,8 +10,6 @@
 
 package com.bright.cmcall;
 
-import java.util.List;
-
 public class cmReadFile {
 
 	private String service;

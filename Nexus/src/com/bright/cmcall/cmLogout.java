@@ -12,6 +12,8 @@ package com.bright.cmcall;
 
 public class cmLogout {
 
+
+
 	private String service;
 
 	public void setService(String service) {

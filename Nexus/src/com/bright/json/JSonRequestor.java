@@ -22,26 +22,14 @@ import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.zip.ZipOutputStream;
 import java.net.URL;
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.io.BufferedWriter;
-import java.io.Console;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -63,57 +51,34 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpService;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.cookie.Cookie;
 
-import com.bright.utils.ScpTo;
-import com.bright.utils.ScpFrom;
-import com.bright.utils.ZipFile;
 import com.bright.utils.Delete;
 import com.bright.utils.rmDuplicateLines;
-import com.bright.json.TextPrompt;
 
 public class JSonRequestor {
 
 	public JSonRequestor() {
 	}
 
+	@SuppressWarnings("deprecation")
 	private static HttpClient getNewHttpClient() {
 		try {
 			KeyStore trustStore = KeyStore.getInstance(KeyStore
@@ -142,11 +107,8 @@ public class JSonRequestor {
 	public static List<Cookie> doLogin(String user, String pass, String myURL) {
 		URL serverURL = null;
 		try {
-			cmLogin loginReq = new cmLogin();
-			loginReq.setService("login");
-
-			loginReq.setUsername(user);
-			loginReq.setPassword(pass);
+			cmLogin loginReq = new cmLogin("login",user,pass);
+			
 
 			GsonBuilder builder = new GsonBuilder();
 
@@ -213,7 +175,6 @@ public class JSonRequestor {
 
 	public static String doRequest(String jsonReq, String myURL,
 			List<Cookie> cookies) {
-		URL serverURL = null;
 		try {
 
 			/* HttpClient httpclient = new DefaultHttpClient(); */
@@ -305,6 +266,7 @@ public class JSonRequestor {
 		cmgetVersion getVer = new Gson().fromJson(ver_string, cmgetVersion.class);
 		System.out.println("Version JSON String " + ver_string);
 		String message = getVer.getCmdaemonBuild().toString();
+		@SuppressWarnings("resource")
 		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");
 		int build_ver = resInt.nextInt();
 		if (build_ver < Constants.CMDAEM0N_MIN_BUILD){
@@ -457,7 +419,7 @@ public class JSonRequestor {
 		// Map<String,jobSubmit.jobObject > mymap= new HashMap<String,
 		// jobSubmit.jobObject>();
 		// mymap.put("Slurm",myjobObj);
-		ArrayList mylist = new ArrayList();
+		ArrayList<Object> mylist = new ArrayList<Object>();
 		mylist.add("slurm");
 		mylist.add(myjobObj);
 		myjob.setArgs(mylist);
@@ -481,7 +443,8 @@ public class JSonRequestor {
 		
 
 		
-		String message = jSonRequestor.doRequest(json2, cmURL, cookies);
+		String message = JSonRequestor.doRequest(json2, cmURL, cookies);
+		@SuppressWarnings("resource")
 		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");
 		int jobID = resInt.nextInt();
 		System.out.println("Job ID: " + jobID);
@@ -491,7 +454,7 @@ public class JSonRequestor {
 		myDialog.setModal(false);
 		myDialog.setVisible(true);
 
-		ArrayList mylist2 = new ArrayList();
+		ArrayList<Object> mylist2 = new ArrayList<Object>();
 		mylist2.add("slurm");
 		String JobID = Integer.toString(jobID);
 		mylist2.add(JobID);
@@ -512,7 +475,7 @@ public class JSonRequestor {
 				+ ".sum@+" + fileByteIdx );
 		String json4 = g.toJson(readfile);
 		
-		String monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
+		String monFile = JSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
 		if(monFile.startsWith("Unable")){
 		monFile = "";	
 		}
@@ -534,7 +497,7 @@ public class JSonRequestor {
 		
 		
 		
-		String getJobJSON = jSonRequestor.doRequest(json3, cmURL, cookies);
+		String getJobJSON = JSonRequestor.doRequest(json3, cmURL, cookies);
 		jobGet getJobObj = new Gson().fromJson(getJobJSON, jobGet.class);
 		System.out.println("Job " + jobID + " status: "
 				+ getJobObj.getStatus().toString());
@@ -543,7 +506,7 @@ public class JSonRequestor {
 				|| getJobObj.getStatus().toString().equals("COMPLETING")) {
 			try {
 
-				getJobJSON = jSonRequestor.doRequest(json3, cmURL, cookies);
+				getJobJSON = JSonRequestor.doRequest(json3, cmURL, cookies);
 				getJobObj = new Gson().fromJson(getJobJSON, jobGet.class);
 				System.out.println("Job " + jobID + " status: "
 						+ getJobObj.getStatus().toString());
@@ -551,7 +514,7 @@ public class JSonRequestor {
 				readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 						+ ".sum@+" + fileByteIdx );
 				json4 = g.toJson(readfile);
-				monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
+				monFile = JSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
 				if(monFile.startsWith("Unable")){
 					monFile = "";	
 					}
@@ -578,7 +541,7 @@ public class JSonRequestor {
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
 				+ ".sum@+" + fileByteIdx );
 		json4 = g.toJson(readfile);
-		monFile = jSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
+		monFile = JSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
 		if(monFile.startsWith("Unable")){
 			monFile = "";	
 			}

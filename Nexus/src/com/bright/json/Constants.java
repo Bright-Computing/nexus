@@ -17,6 +17,7 @@ public final class Constants {
 	public static final int STATUS_CHECK_INTERVAL = 10000;
 	public static final int CMDAEM0N_MIN_BUILD = 100;
 	
+	@SuppressWarnings("unused")
 	private void Constants() {
 
 		throw new AssertionError();

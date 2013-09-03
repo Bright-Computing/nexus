@@ -16,7 +16,7 @@ public class cmProc {
 
 	private String service;
 	private String call;
-	private List args;
+	private List<?> args;
 
 	// other setter and getter
 
@@ -24,7 +24,7 @@ public class cmProc {
 		this.service = service;
 	}
 
-	public void setArgs(List args) {
+	public void setArgs(List<?> args) {
 		this.args = args;
 	}
 

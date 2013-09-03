@@ -10,11 +10,7 @@
 
 package com.bright.cmcall;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 
 public class jobSubmit {
 
@@ -26,7 +22,7 @@ public class jobSubmit {
 	private String call;
 	private String service;
 
-	private List args;
+	private List<?> args;
 
 	public void setCall(String call) {
 		this.call = call;
@@ -41,7 +37,7 @@ public class jobSubmit {
 	 * this.args = args; } Improper JSON serialization
 	 */
 
-	public void setArgs(List args) {
+	public void setArgs(List<?> args) {
 		this.args = args;
 	}
 

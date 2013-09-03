@@ -13,10 +13,6 @@ package com.bright.utils;
 import com.bright.json.Constants;
 import com.jcraft.jsch.*;
 
-import java.awt.*;
-
-import javax.swing.*;
-
 import java.io.*;
 
 public class ScpTo {
