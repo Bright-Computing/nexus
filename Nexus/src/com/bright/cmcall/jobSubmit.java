@@ -11,7 +11,7 @@
 package com.bright.cmcall;
 
 import java.util.List;
-
+@SuppressWarnings("unused")
 public class jobSubmit {
 
 	// example JSON RPC request that has to be serialized with GSON
@@ -40,9 +40,10 @@ public class jobSubmit {
 	public void setArgs(List<?> args) {
 		this.args = args;
 	}
-
+	
 	public static class jobObject {
 
+		
 		private List<String> modules;
 		private String jobID;
 		private String queue;

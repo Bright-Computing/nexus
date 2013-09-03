@@ -9,7 +9,7 @@
  */
 
 package com.bright.cmcall;
-
+@SuppressWarnings("unused")
 public class cmLogin {
 	public cmLogin(String service, String username, String password) {
 		super();

@@ -1,6 +1,6 @@
 package com.bright.cmcall;
 
-public class cmgetVersion {
+public  class cmgetVersion {
 
 
 

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.net.URL;
 import java.awt.GridLayout;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -73,12 +72,12 @@ import org.apache.http.cookie.Cookie;
 import com.bright.utils.Delete;
 import com.bright.utils.rmDuplicateLines;
 
+@SuppressWarnings("deprecation")
 public class JSonRequestor {
 
 	public JSonRequestor() {
 	}
 
-	@SuppressWarnings("deprecation")
 	private static HttpClient getNewHttpClient() {
 		try {
 			KeyStore trustStore = KeyStore.getInstance(KeyStore
@@ -105,7 +104,6 @@ public class JSonRequestor {
 	}
 
 	public static List<Cookie> doLogin(String user, String pass, String myURL) {
-		URL serverURL = null;
 		try {
 			cmLogin loginReq = new cmLogin("login",user,pass);
 			
@@ -369,7 +367,7 @@ public class JSonRequestor {
 
 		String[] myarg = new String[] { zipArgs[1],
 				ruser + "@" + rhost + ":" + rfile, nexusOut, fileBasename };
-		String[] Uauth = com.bright.utils.ScpTo.main(myarg);
+		com.bright.utils.ScpTo.main(myarg);
 
 		String cmURL = "https://" + rhost + ":8081/json";
 		List<Cookie> cookies = doLogin(ruser, rpass, cmURL);
@@ -436,13 +434,6 @@ public class JSonRequestor {
 
 		// To be used from a real console and not Eclipse
 		Delete.main(zipArgs[1]);
-		// JSonRequestor AuthRequestor = new JSonRequestor();
-		// AuthRequestor.AuthRequest(cmURL);
-		JSonRequestor jSonRequestor = new JSonRequestor();
-		// jSonRequestor.doRequest(json, cmURL );
-		
-
-		
 		String message = JSonRequestor.doRequest(json2, cmURL, cookies);
 		@SuppressWarnings("resource")
 		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");

@@ -183,7 +183,7 @@ public class ScpFrom {
 
 			((ChannelExec) channel1).setErrStream(System.err);
 
-			InputStream in1 = channel1.getInputStream();
+			//InputStream in1 = channel1.getInputStream();
 
 			channel1.connect();
 

@@ -38,11 +38,9 @@ public class rmDuplicateLines {
 		        Iterator<String> itr =userIdSet.iterator();
 		        StringBuffer output = new StringBuffer();
 		        while(itr.hasNext()){
-		        	if(itr.next().startsWith("   ")){
-		        		output.append( "");	
-		        		}else {
+		        
 		        	output.append(itr.next() +  System.getProperty("line.separator"));		     
-		        		}
+		        		
 		        }
 				
 				BufferedWriter out = new BufferedWriter(new FileWriter(monfile));

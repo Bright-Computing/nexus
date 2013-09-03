@@ -11,7 +11,7 @@
 package com.bright.cmcall;
 
 import java.util.List;
-
+@SuppressWarnings("unused")
 public class cmMain {
 	private String service;
 	private String call;

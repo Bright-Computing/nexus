@@ -9,7 +9,7 @@
  */
 
 package com.bright.cmcall;
-
+@SuppressWarnings("unused")
 public class cmReadFile {
 
 	private String service;
