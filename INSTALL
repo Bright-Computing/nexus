@@ -1,0 +1,60 @@
+======================================================
+Installing Nexus on a Bright Cluster
+======================================================
+
+Steps:
+------
+
+
+- Install Nexus using the wizard GUI and select /cm/shared/apps/nexus as the installation path.
+
+- Install Intel 's MPI : yum install intel-mpi
+
+- Install a recent revision of CMDaemon (17943 or later)
+
+The required changes will be incorporated in the following Bright release. For the time being we have prepared RPMs that include the changes. They are located at  http://support.brightcomputing.com/landmark/
+
+Grab and install these RPMs on the head node and inside the software images.
+
+- Create the  following environment module files
+
+		1)    /cm/shared/modulefiles/nexus/4.7.0
+
+		with the following contents:
+
+				#%Module1.0
+				proc ModulesHelp { } {
+				global dotversion
+
+				puts stderr "\tNexus 4.7.0 (Nexus, VIP, OW)"
+				}
+
+				module-whatis "Nexus 4.7.0 (Nexus, VIP, OW)"
+				conflict nexus
+				setenv NEXUS_SIM /cm/shared/apps/nexus/nexussimulators
+				setenv NEXUS_SCRIPT /cm/shared/apps/nexus/nexusscript
+				setenv LM_LICENSE_FILE /cm/shared/licenses/lgc/license.dat
+
+		and 
+
+		2)  /cm/shared/modulefiles/nexus-mpi /4.7.0
+
+		with the following contents:
+
+				#%Module1.0
+				proc ModulesHelp { } {
+				global dotversion
+
+				puts stderr "\tNexus Intel MPI 4.7.0 (Nexus, VIP, OW)"
+				}
+
+				module-whatis "Nexus Intel MPI 4.7.0 (Nexus, VIP, OW)"
+				conflict intel-mpi
+				prepend-path PATH /cm/shared/apps/nexus/nexussimulators/LinuxEM64/Intel-MPI/intel64/bin
+				prepend-path LD_LIBRARY_PATH /cm/shared/apps/nexus/nexussimulators/LinuxEM64/Intel-MPI/intel64/lib
+
+
+- Install the license file in /cm/shared/licenses/lgc/license.dat
+
+- Make sure that the nodes can access the FlexLM server.
+
